@@ -18,6 +18,8 @@ func Create(bitB DataBucket) {
 
 }
 
+//Update will update data in cassandra as well as data in esd if
+//the same is search-enabled.
 func Update(bitB DataBucket) {
 
 }

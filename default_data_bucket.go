@@ -1,30 +1,54 @@
 package bitbu
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
+
+var (
+	ErrInvalidFieldNameWithUsage = "Error: Invalid FieldNameWithUsage"
+)
+
+type FieldNameWithUsage string
+
+func (f FieldNameWithUsage) BitUsage() (string, error) {
+	if ok, err := f.Valid(); ok {
+		return strings.Split(string(f), ".")[1], nil
+	} else {
+		return "", err
+	}
+
+}
+func (f FieldNameWithUsage) Name() (string, error) {
+	if ok, err := f.Valid(); ok {
+		return strings.Split(string(f), ".")[0], nil
+	} else {
+		return "", err
+	}
+}
+func (f FieldNameWithUsage) Valid() (bool, error) {
+	if strings.Count(string(f), ".") == 1 {
+		return true, nil
+	}
+
+	return false, errors.New(ErrInvalidFieldNameWithUsage)
+}
+
+func NewFieldNameWithUsage(bitFieldName, bitUsage string) FieldNameWithUsage {
+	return FieldNameWithUsage(strings.Join([]string{bitFieldName, bitUsage}, "."))
+}
 
 type DataBucketField struct {
 	Name                  string
 	BitFieldNameWithUsage []string
+	OldValue              interface{}
 	Value                 interface{}
 }
 
 type DefaultDataBucket struct {
 	//to store sql table name or NoSQL column family name
-	Name       string
-	fields     map[string]DataBucketField
-	fieldNames []string
-	dataBits   map[string]DataBit
-	//for update
-	isUpdated bool
-}
-
-func (b DefaultDataBucket) DataBits() map[string]DataBit {
-
-	return b.dataBits
-}
-
-func (b DefaultDataBucket) Fields() []string {
-	return b.fieldNames
+	Name string
+	BaseBucket
 }
 
 func (b DefaultDataBucket) FieldValue(fieldName string) (interface{}, error) {
@@ -34,23 +58,34 @@ func (b DefaultDataBucket) FieldValue(fieldName string) (interface{}, error) {
 	}
 	return nil, errors.New(ErrNoSuchField)
 }
-func (b DefaultDataBucket) AddDataBit(bitUsage string, dataBit DataBit) error {
-	b.dataBits[bitUsage] = dataBit
-	return nil
-}
-func (b DefaultDataBucket) AddField(fieldName string, bitFieldName string, dataBitUsage string) {
-	b.fieldNames = append(b.fieldNames, fieldName)
-	b.fields[fieldName] = DataBucketField{
-		Name: fieldName,
-		BitFieldNameWithUsage: []string{bitFieldName + "." + dataBitUsage},
+
+func (b *DefaultDataBucket) SetFieldValue(fieldName string, value interface{}) error {
+	field, ok := b.fields[fieldName]
+	if !ok {
+		return errors.New(ErrNoSuchField)
+	}
+	b.isUpdated = true
+
+	switch fieldName {
+	case "Name":
+		b.Name = value.(string)
 	}
 
-}
-func (b DefaultDataBucket) SetFieldValue(fieldName string, value interface{}) error {
-	if field, ok := b.fields[fieldName]; !ok {
-		return errors.New(ErrNoSuchField)
-	} else {
-		field.Value = value
-	}
+	b.fields[fieldName] = field
+	b.changedFieldNames = append(b.changedFieldNames, fieldName)
+
 	return nil
+}
+
+func NewDefaultDataBucket() DefaultDataBucket {
+	defaultDataBucket := DefaultDataBucket{
+		BaseBucket: BaseBucket{dataBits: make(map[string]DataBit),
+			fields: make(map[string]DataBucketField)}}
+	ddbit := DefaultDataBit{}
+	defaultDataBucket.AddDataBit("Users", ddbit)
+
+	defaultDataBucket.AddField("Name", "Name", "Users", &defaultDataBucket.Name)
+	//defaultDataBucket.fields
+
+	return defaultDataBucket
 }
