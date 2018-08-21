@@ -60,27 +60,27 @@ func (b DefaultDataBucket) FieldValue(fieldName string) (interface{}, error) {
 }
 
 func (b *DefaultDataBucket) SetFieldValue(fieldName string, value interface{}) error {
-	field, ok := b.fields[fieldName]
+	_, ok := b.fields[fieldName]
 	if !ok {
 		return errors.New(ErrNoSuchField)
 	}
-	b.isUpdated = true
 
 	switch fieldName {
 	case "Name":
 		b.Name = value.(string)
 	}
 
-	b.fields[fieldName] = field
 	b.changedFieldNames = append(b.changedFieldNames, fieldName)
-
+	b.isUpdated = true
 	return nil
 }
 
 func NewDefaultDataBucket() DefaultDataBucket {
 	defaultDataBucket := DefaultDataBucket{
 		BaseBucket: BaseBucket{dataBits: make(map[string]DataBit),
-			fields: make(map[string]DataBucketField)}}
+			fields:       make(map[string]DataBucketField),
+			filterFields: make(map[string]DataBucketField)},
+	}
 	ddbit := DefaultDataBit{}
 	defaultDataBucket.AddDataBit("Users", ddbit)
 

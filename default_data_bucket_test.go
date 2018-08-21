@@ -1,6 +1,9 @@
 package bitbu
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNewFieldNameWithBitUsage(t *testing.T) {
 	field := "Name"
@@ -40,7 +43,37 @@ func TestFieldNameWithBitUsageValid(t *testing.T) {
 func TestBucketSetValue(t *testing.T) {
 	b := NewDefaultDataBucket()
 	b.SetFieldValue("Name", "shreesha")
-	if b.Name != "shreesha" {
+	if v, _ := b.FieldValue("Name"); v.(string) != "shreesha" {
 		t.Error("SetFieldValue is not setting the value")
+	}
+	if err := b.SetFieldValue("Name22", "shreeha"); (err != nil) && err.Error() != ErrNoSuchField {
+		t.Errorf("DefaultDataBucket.SetFieldValue() error = %v, wantErr %v", err, ErrNoSuchField)
+	}
+}
+
+func TestBucketAddFilter(t *testing.T) {
+	b := NewDefaultDataBucket()
+	b.AddFilter("Name", "shreesha")
+	updateCQL, _ := genUpdateCQLstatement(&b)
+	t.Log(updateCQL)
+	if strings.Contains(updateCQL, "WHERE Name = \\?") {
+		t.Errorf("AddFilter is not setting the filter. Substr expected='WHERE Name = ?' CQL='%s'", updateCQL)
+	}
+	b.AddFilter("Name2", "shreesha2")
+	updateCQL, _ = genUpdateCQLstatement(&b)
+	t.Log(updateCQL)
+	if strings.Count(updateCQL, "AND Name2 = \\?") == 1 {
+		t.Errorf("AddFilter is not setting the filter. Substr expected='AND Name2 = ?'. CQL='%s'", updateCQL)
+	}
+}
+
+func TestBucket_FieldValue(t *testing.T) {
+	b := NewDefaultDataBucket()
+	b.SetFieldValue("Name", "shreesha")
+	if v, _ := b.FieldValue("Name"); v.(string) != "shreesha" {
+		t.Error("SetFieldValue is not setting the value")
+	}
+	if _, err := b.FieldValue("Name22"); (err != nil) && err.Error() != ErrNoSuchField {
+		t.Errorf("DefaultDataBucket.SetFieldValue() error = %v, wantErr %v", err, ErrNoSuchField)
 	}
 }

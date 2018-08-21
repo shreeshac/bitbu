@@ -21,4 +21,6 @@ func main() {
 	sneha := "sneha"
 	s.Name = sneha
 	fmt.Println(2, arr[0], v1, *v1)
+
+	fmt.Printf("%s,%d", "\\?", len("?"))
 }

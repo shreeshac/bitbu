@@ -20,7 +20,7 @@ type BitUpdater interface {
 //DataBucket is a collection of DataBits
 type DataBucket interface {
 	DataBucketDef
-
+	Filters() map[string]DataBucketField
 	DataBits() map[string]DataBit
 	Fields(changed BucketFieldListOptions) []string
 	FieldValue(fieldName string) (interface{}, error)

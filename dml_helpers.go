@@ -1,12 +1,10 @@
 package bitbu
 
-import (
-	"fmt"
-)
-
 const (
-	CQLTokenUpdate = "UPDATE "
-	CQLTokenSet    = "SET "
+	CQLTokenUpdate = " UPDATE "
+	CQLTokenSet    = " SET "
+	CQLTokenWhere  = " WHERE "
+	CQLTokenAnd    = " AND "
 )
 
 type BucketFieldListOptions bool
@@ -16,13 +14,27 @@ const (
 	ListBucketFieldsAll     BucketFieldListOptions = false
 )
 
-func genUpdateCQLstatement(bitB DataBucket) string {
+func genUpdateCQLstatement(bitB DataBucket) (string, []interface{}) {
 	updateCQL := CQLTokenUpdate
 	//fields := strings.Join(bitB.Fields(false), ",")
 	assignments := ""
-	for i, updatedFieldName := range bitB.Fields(ListBucketFieldsUpdated) {
-		fmt.Println("inside genUpdateCQLstatement ")
-		assignments = assignments + " " + updatedFieldName + " = :" + fmt.Sprintf("%d", i+1)
+	var values []interface{}
+	for _, updatedFieldName := range bitB.Fields(ListBucketFieldsUpdated) {
+
+		assignments = assignments + " " + updatedFieldName + " = ?"
+		v, _ := bitB.FieldValue(updatedFieldName)
+		values = append(values, v)
 	}
-	return updateCQL + CQLTokenSet + assignments
+
+	filters := ""
+	for _, field := range bitB.Filters() {
+		if len(filters) == 0 {
+			filters = filters + CQLTokenWhere + field.Name + " = ?"
+			v := field.Value
+			values = append(values, v)
+		} else {
+			filters = filters + CQLTokenAnd + field.Name + " = ?"
+		}
+	}
+	return updateCQL + CQLTokenSet + assignments + filters, values
 }

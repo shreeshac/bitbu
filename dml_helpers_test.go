@@ -12,7 +12,7 @@ import (
 
 func TestGenUpdateCQLstatement(t *testing.T) {
 	defaultDataBucket := NewDefaultDataBucket()
-	updateCQL := genUpdateCQLstatement(&defaultDataBucket)
+	updateCQL, _ := genUpdateCQLstatement(&defaultDataBucket)
 	if len(updateCQL) == 0 {
 		t.Error("Update CQL string can't be empty")
 	}
@@ -27,10 +27,10 @@ func TestGenUpdateCQLstatement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	updateCQL = genUpdateCQLstatement(&defaultDataBucket)
-	if strings.Count(updateCQL, "Name") != 1 {
+	updateCQL, _ = genUpdateCQLstatement(&defaultDataBucket)
+	if strings.Count(updateCQL, "Name = ?") != 1 {
 		t.Errorf("Update CQL should contain update coloumn 'Name'. CQL='%s'", updateCQL)
 
 	}
-	//t.Error(defaultDataBucket.changedFieldNames, defaultDataBucket.fieldNames)
+
 }
