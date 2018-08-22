@@ -13,12 +13,15 @@ type BaseBucket struct {
 	fieldNames        []string
 	changedFieldNames []string
 	dataBits          map[string]DataBit
+	dataBitUsages     []string
 	filterFields      map[string]DataBucketField
+	filterFieldNames  []string
 	//for update
 	isUpdated bool
 }
 
 func (b *BaseBucket) AddDataBit(bitUsage string, dataBit DataBit) error {
+	b.dataBitUsages = append(b.dataBitUsages, bitUsage)
 	b.dataBits[bitUsage] = dataBit
 	return nil
 }
@@ -42,9 +45,13 @@ func (b BaseBucket) DataBits() map[string]DataBit {
 
 	return b.dataBits
 }
+func (b BaseBucket) DataBitUsages() []string {
+
+	return b.dataBitUsages
+}
 
 func (b *BaseBucket) AddFilter(fieldName string, value interface{}) {
-
+	b.filterFieldNames = append(b.filterFieldNames, fieldName)
 	b.filterFields[fieldName] = DataBucketField{
 		Name:  fieldName,
 		Value: value,
@@ -55,4 +62,8 @@ func (b *BaseBucket) AddFilter(fieldName string, value interface{}) {
 func (b BaseBucket) Filters() map[string]DataBucketField {
 
 	return b.filterFields
+}
+func (b BaseBucket) FilterFieldNames() []string {
+
+	return b.filterFieldNames
 }

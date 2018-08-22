@@ -21,7 +21,9 @@ type BitUpdater interface {
 type DataBucket interface {
 	DataBucketDef
 	Filters() map[string]DataBucketField
+	FilterFieldNames() []string
 	DataBits() map[string]DataBit
+	DataBitUsages() []string
 	Fields(changed BucketFieldListOptions) []string
 	FieldValue(fieldName string) (interface{}, error)
 }

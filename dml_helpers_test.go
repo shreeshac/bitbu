@@ -32,5 +32,27 @@ func TestGenUpdateCQLstatement(t *testing.T) {
 		t.Errorf("Update CQL should contain update coloumn 'Name'. CQL='%s'", updateCQL)
 
 	}
+	defaultDataBucket.AddFilter("Name", "shreesha2")
+	updateCQL, _ = genUpdateCQLstatement(&defaultDataBucket)
+	t.Log(updateCQL)
+	if !strings.Contains(updateCQL, "WHERE Name = ?") {
+		t.Errorf("AddFilter is not setting the filter. Substr expected='WHERE Name = ?' CQL='%s'", updateCQL)
+	}
+	defaultDataBucket.AddFilter("email", "shreesha2")
+	updateCQL, values := genUpdateCQLstatement(&defaultDataBucket)
+	t.Log(updateCQL)
+	if strings.Count(updateCQL, "AND email = ?") != 1 {
+		t.Errorf("AddFilter is not setting the filter. Substr expected='AND email = ?'. CQL='%s'", updateCQL)
+	}
+	if len(values) != 2 {
+		t.Errorf("Bucket_AddFilter() values length should be 2. CQL='%s' len of values='%d'", updateCQL, len(values))
+
+	}
+	want := " UPDATE Users SET  Name = ? WHERE Name = ? AND email = ?"
+	result, values := genUpdateCQLstatement(&defaultDataBucket)
+
+	if want != result {
+		t.Errorf("Expected '%s', found '%s'", want, result)
+	}
 
 }

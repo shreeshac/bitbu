@@ -27,14 +27,14 @@ func genUpdateCQLstatement(bitB DataBucket) (string, []interface{}) {
 	}
 
 	filters := ""
-	for _, field := range bitB.Filters() {
+	for _, field := range bitB.FilterFieldNames() {
 		if len(filters) == 0 {
-			filters = filters + CQLTokenWhere + field.Name + " = ?"
-			v := field.Value
+			filters = filters + CQLTokenWhere + field + " = ?"
+			v := bitB.Filters()[field].Value
 			values = append(values, v)
 		} else {
-			filters = filters + CQLTokenAnd + field.Name + " = ?"
+			filters = filters + CQLTokenAnd + field + " = ?"
 		}
 	}
-	return updateCQL + CQLTokenSet + assignments + filters, values
+	return updateCQL + bitB.DataBitUsages()[0] + CQLTokenSet + assignments + filters, values
 }

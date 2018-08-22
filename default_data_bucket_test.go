@@ -60,10 +60,14 @@ func TestBucketAddFilter(t *testing.T) {
 		t.Errorf("AddFilter is not setting the filter. Substr expected='WHERE Name = ?' CQL='%s'", updateCQL)
 	}
 	b.AddFilter("Name2", "shreesha2")
-	updateCQL, _ = genUpdateCQLstatement(&b)
+	updateCQL, values := genUpdateCQLstatement(&b)
 	t.Log(updateCQL)
 	if strings.Count(updateCQL, "AND Name2 = \\?") == 1 {
 		t.Errorf("AddFilter is not setting the filter. Substr expected='AND Name2 = ?'. CQL='%s'", updateCQL)
+	}
+	if len(values) < 2 {
+		t.Errorf("Update CQL should contain update coloumn 'Name'. CQL='%s'", updateCQL)
+
 	}
 }
 
