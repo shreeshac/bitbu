@@ -5,6 +5,7 @@ const (
 	CQLTokenSet    = " SET "
 	CQLTokenWhere  = " WHERE "
 	CQLTokenAnd    = " AND "
+	CQLTokenInsert = " INSERT "
 )
 
 type BucketFieldListOptions bool
@@ -37,4 +38,13 @@ func genUpdateCQLstatement(bitB DataBucket) (string, []interface{}) {
 		}
 	}
 	return updateCQL + bitB.DataBitUsages()[0] + CQLTokenSet + assignments + filters, values
+}
+
+func genInsertCQL(b DataBucket) (queries []string, values []interface{}) {
+
+	for _, usage := range b.DataBitUsages() {
+		query := CQLTokenInsert
+		queries = append(queries, query)
+	}
+	return queries, values
 }

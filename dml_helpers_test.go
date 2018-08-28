@@ -10,7 +10,7 @@ import (
 // 	DefaultDataBucket
 // }
 
-func TestGenUpdateCQLstatement(t *testing.T) {
+func Test_genUpdateCQLstatement(t *testing.T) {
 	defaultDataBucket := NewDefaultDataBucket()
 	updateCQL, _ := genUpdateCQLstatement(&defaultDataBucket)
 	if len(updateCQL) == 0 {
@@ -55,4 +55,17 @@ func TestGenUpdateCQLstatement(t *testing.T) {
 		t.Errorf("Expected '%s', found '%s'", want, result)
 	}
 
+}
+func Test_genInsertCQL(t *testing.T) {
+	b := NewDefaultDataBucket()
+	resQuery, resValues := genInsertCQL(&b)
+	if len(resQuery[0]) == 0 {
+		t.Error("insert CQL cannot be empty")
+	}
+	if len(resValues) == 0 {
+		t.Error("values cannot be empty")
+	}
+	if !strings.HasPrefix(resQuery, CQLTokenInsert) {
+		t.Errorf("Insert CQL should start with INSERT keyword. found:'%s'", resQuery)
+	}
 }
