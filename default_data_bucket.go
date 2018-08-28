@@ -46,9 +46,9 @@ type DataBucketField struct {
 }
 
 type DefaultDataBucket struct {
-	//to store sql table name or NoSQL column family name
-	Name string
 	BaseBucket
+	//model fields
+	Name string
 }
 
 func (b DefaultDataBucket) FieldValue(fieldName string) (interface{}, error) {
