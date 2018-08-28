@@ -2,8 +2,18 @@ package bitbu
 
 import "errors"
 
+type ValidationValue int8
+
+const (
+	ValidationForUpdate ValidationValue = iota
+	ValidationForCreate
+	ValidationForDelete
+	ValidationForRead
+)
+
 var (
-	ErrNoSuchField = "Error: No such field"
+	ErrNoSuchField    = "Error: No such field"
+	ErrBitNameIsEmpty = "Error: Bit name can't be empty"
 )
 
 //DefaultDataBit is a default implementation of DataBit
@@ -43,7 +53,12 @@ func (b DefaultDataBit) SetValue(fieldName string, value interface{}) error {
 	switch fieldName {
 	case "Name":
 		b.Name = value.(string)
+	case "":
+		errors.New(ErrNoSuchField)
 	}
 	return errors.New(ErrNoSuchField)
 
+}
+func (b DefaultDataBit) Valdiate() bool {
+	return true
 }
