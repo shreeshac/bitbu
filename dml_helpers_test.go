@@ -58,14 +58,61 @@ func Test_genUpdateCQLstatement(t *testing.T) {
 }
 func Test_genInsertCQL(t *testing.T) {
 	b := NewDefaultDataBucket()
-	resQuery, resValues := genInsertCQL(&b)
-	if len(resQuery[0]) == 0 {
-		t.Error("insert CQL cannot be empty")
+
+	resQueries, resValues := genInsertCQL(&b)
+	for usage, resQuery := range resQueries {
+		if len(resQuery) == 0 {
+			t.Error("insert CQL cannot be empty")
+		}
+		if len(resValues[usage]) == 0 {
+			t.Error("values cannot be empty")
+		}
+		if !strings.HasPrefix(resQuery, CQLTokenInsert) {
+			t.Errorf("Insert CQL should start with CQLTokenInsert keyword. found:'%s'", resQuery)
+		}
+		if !strings.Contains(resQuery, "?") {
+			t.Errorf("Insert CQL should contain atleast one placeholder. found:'%s'", resQuery)
+		}
 	}
-	if len(resValues) == 0 {
-		t.Error("values cannot be empty")
+}
+
+func Test_genValuesPlaceHolderString(t *testing.T) {
+	type args struct {
+		args []interface{}
 	}
-	if !strings.HasPrefix(resQuery, CQLTokenInsert) {
-		t.Errorf("Insert CQL should start with INSERT keyword. found:'%s'", resQuery)
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "Two values",
+			args: args{
+				args: []interface{}{"val1", "val2"},
+			},
+			want: "?,?",
+		},
+		{
+			name: "No values",
+			args: args{
+				args: []interface{}{},
+			},
+			want: "",
+		},
+		{
+			name: "One value",
+			args: args{
+				args: []interface{}{"val1"},
+			},
+			want: "?",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := genValuesPlaceHolderString(tt.args.args...); got != tt.want {
+				t.Errorf("genValuesPlaceHolderString() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

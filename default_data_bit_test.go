@@ -10,11 +10,11 @@ func TestDefaultDataBit_BitName(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{name: "simple test",
-			b:    DefaultDataBit{Name: "shreesha"},
+			b:    DefaultDataBit{_tableName: "shreesha"},
 			want: "shreesha",
 		},
 		{name: "simple empty bit name test",
-			b:    DefaultDataBit{Name: ""},
+			b:    DefaultDataBit{_tableName: ""},
 			want: "",
 		},
 	}

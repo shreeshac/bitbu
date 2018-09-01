@@ -19,15 +19,16 @@ var (
 //DefaultDataBit is a default implementation of DataBit
 type DefaultDataBit struct {
 	//to store sql table name or NoSQL column family name
-	Name string
+	_tableName string
 
-	FieldNames []string
+	FieldNames  []string
+	fieldValues []interface{}
 	//for update
 	isUpdated bool
 }
 
 func (b DefaultDataBit) BitName() string {
-	return b.Name
+	return b._tableName
 }
 
 func (b DefaultDataBit) Fields() []string {
@@ -35,28 +36,26 @@ func (b DefaultDataBit) Fields() []string {
 }
 
 func (b DefaultDataBit) FieldValue(fieldName string) (interface{}, error) {
-	switch fieldName {
-	case "Name":
-		return b.Name, nil
-	}
+
 	return nil, errors.New(ErrNoSuchField)
+}
+func (b DefaultDataBit) FieldValues() []interface{} {
+
+	return b.fieldValues
 }
 
 func (b DefaultDataBit) IsUpdated() bool {
 	return b.isUpdated
 }
-func (b DefaultDataBit) SetForUpdate(t bool) error {
+func (b *DefaultDataBit) SetForUpdate(t bool) error {
 	b.isUpdated = t
 	return nil
 }
-func (b DefaultDataBit) SetValue(fieldName string, value interface{}) error {
-	switch fieldName {
-	case "Name":
-		b.Name = value.(string)
-	case "":
-		errors.New(ErrNoSuchField)
-	}
-	return errors.New(ErrNoSuchField)
+func (b *DefaultDataBit) SetValue(fieldName string, value interface{}) error {
+	b.FieldNames = append(b.FieldNames, fieldName)
+	b.fieldValues = append(b.fieldValues, value)
+
+	return nil
 
 }
 func (b DefaultDataBit) Valdiate() bool {

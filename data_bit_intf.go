@@ -8,10 +8,19 @@ type DataBit interface {
 }
 
 type BitReader interface {
+	DataBit
 	Fields() []string
 	FieldValue(fieldName string) (interface{}, error)
+	FieldValues() []interface{}
 }
 type BitUpdater interface {
+	DataBit
+	IsUpdated() bool
+	SetForUpdate(bool) error
+	SetValue(fieldName string, value interface{}) error
+}
+type BitReadUpdater interface {
+	BitReader
 	IsUpdated() bool
 	SetForUpdate(bool) error
 	SetValue(fieldName string, value interface{}) error

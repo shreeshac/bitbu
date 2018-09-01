@@ -1,11 +1,16 @@
 package bitbu
 
+import (
+	"strings"
+)
+
 const (
 	CQLTokenUpdate = " UPDATE "
 	CQLTokenSet    = " SET "
 	CQLTokenWhere  = " WHERE "
 	CQLTokenAnd    = " AND "
-	CQLTokenInsert = " INSERT "
+	CQLTokenInsert = " INSERT INTO "
+	CQLTokenValues = " VALUES "
 )
 
 type BucketFieldListOptions bool
@@ -40,11 +45,30 @@ func genUpdateCQLstatement(bitB DataBucket) (string, []interface{}) {
 	return updateCQL + bitB.DataBitUsages()[0] + CQLTokenSet + assignments + filters, values
 }
 
-func genInsertCQL(b DataBucket) (queries []string, values []interface{}) {
-
+func genInsertCQL(b DataBucket) (queries map[string]string, values map[string][]interface{}) {
+	queries = make(map[string]string)
+	values = make(map[string][]interface{})
 	for _, usage := range b.DataBitUsages() {
-		query := CQLTokenInsert
-		queries = append(queries, query)
+		bit := b.DataBits()[usage].(BitReader)
+		query := CQLTokenInsert + bit.BitName()
+		query = query + "(" + strings.Join(bit.Fields(), ",") + ")"
+		query = query + CQLTokenValues
+
+		query = query + "(" + genValuesPlaceHolderString(bit.FieldValues()...) + ")"
+		queries[usage] = query
+		values[usage] = bit.FieldValues()
 	}
+
 	return queries, values
+}
+
+func genValuesPlaceHolderString(args ...interface{}) string {
+	valuesPlaceHolderString := ""
+	if len(args) > 0 {
+		valuesPlaceHolderString = "?"
+	}
+	if len(args) > 1 {
+		valuesPlaceHolderString = valuesPlaceHolderString + strings.Repeat(",?", len(args)-1)
+	}
+	return valuesPlaceHolderString
 }

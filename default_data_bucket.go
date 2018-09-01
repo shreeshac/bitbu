@@ -81,8 +81,8 @@ func NewDefaultDataBucket() DefaultDataBucket {
 			fields:       make(map[string]DataBucketField),
 			filterFields: make(map[string]DataBucketField)},
 	}
-	ddbit := DefaultDataBit{}
-	defaultDataBucket.AddDataBit("Users", ddbit)
+	ddbit := DefaultDataBit{_tableName: "Users"}
+	defaultDataBucket.AddDataBit("Users", &ddbit)
 
 	defaultDataBucket.AddField("Name", "Name", "Users", &defaultDataBucket.Name)
 	//defaultDataBucket.fields
