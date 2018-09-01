@@ -33,6 +33,8 @@ func (b *BaseBucket) AddField(fieldName string, bitFieldName string, dataBitUsag
 		OldValue:              value,
 		Value:                 value,
 	}
+	bit := b.DataBits()[dataBitUsage].(BitUpdater)
+	bit.SetValue(bitFieldName, value)
 
 }
 func (b BaseBucket) Fields(changed BucketFieldListOptions) []string {
