@@ -4,7 +4,7 @@ package bitbu
 //used for db operations like create,read, update and delete
 type DataBit interface {
 	//returns coloumn family or table name
-	BitName() string
+	BitType() string
 }
 
 type BitReader interface {
@@ -35,6 +35,7 @@ type DataBucket interface {
 	DataBitUsages() []string
 	Fields(changed BucketFieldListOptions) []string
 	FieldValue(fieldName string) (interface{}, error)
+	FieldValues() []interface{}
 }
 
 type DataBucketDef interface {

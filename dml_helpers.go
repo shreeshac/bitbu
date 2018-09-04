@@ -11,6 +11,8 @@ const (
 	CQLTokenAnd    = " AND "
 	CQLTokenInsert = " INSERT INTO "
 	CQLTokenValues = " VALUES "
+	CQLTokenSelect = " SELECT "
+	CQLTokenFrom   = " FROM "
 )
 
 type BucketFieldListOptions bool
@@ -50,7 +52,7 @@ func genInsertCQL(b DataBucket) (queries map[string]string, values map[string][]
 	values = make(map[string][]interface{})
 	for _, usage := range b.DataBitUsages() {
 		bit := b.DataBits()[usage].(BitReader)
-		query := CQLTokenInsert + bit.BitName()
+		query := CQLTokenInsert + bit.BitType()
 		query = query + "(" + strings.Join(bit.Fields(), ",") + ")"
 		query = query + CQLTokenValues
 
@@ -60,6 +62,19 @@ func genInsertCQL(b DataBucket) (queries map[string]string, values map[string][]
 	}
 
 	return queries, values
+}
+
+func genSelectCQL(b DataBucket) (query string, value []interface{}) {
+	//first DataBitUsage will be the primary table
+	//from which we need to return the value.
+	//the rest of the DataBitUsages are used in update queries
+	bitUsage := b.DataBitUsages()[0]
+	bit := b.DataBits()[bitUsage]
+	cqlTableName := " " + bit.BitType()
+
+	query = CQLTokenSelect +
+		strings.Join(b.Fields(false), ",") + CQLTokenFrom + cqlTableName
+	return query, b.FieldValues()
 }
 
 func genValuesPlaceHolderString(args ...interface{}) string {

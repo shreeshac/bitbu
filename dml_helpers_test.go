@@ -116,3 +116,28 @@ func Test_genValuesPlaceHolderString(t *testing.T) {
 		})
 	}
 }
+
+func Test_genSelectCQL(t *testing.T) {
+	b := NewDefaultDataBucket()
+	query, value := genSelectCQL(&b)
+	if query == "" {
+		t.Error("SELECT Query can not be empty")
+	}
+	if len(value) == 0 {
+		t.Error("SELECT CQL- Value can't be empty")
+	}
+
+	if !strings.HasPrefix(query, CQLTokenSelect) {
+		t.Errorf("Select CQL should start with '%s'.found '%s'", CQLTokenSelect, query)
+	}
+
+	if !strings.Contains(query, CQLTokenFrom) {
+		t.Errorf("Select CQL should contain 'From' keyword. found '%s'", query)
+	}
+	if !strings.Contains(query, b.DataBits()["Users"].BitType()) {
+		t.Errorf("genSelectCQL: Select CQL should contain 'Users' table. found '%s'", query)
+	}
+	if strings.Contains(query, strings.Join(b.Fields(false), ",")) {
+		t.Errorf("genSelectCQL: Select CQL should contain all fields in the table. found '%s'", query)
+	}
+}

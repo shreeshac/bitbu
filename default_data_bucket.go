@@ -58,7 +58,16 @@ func (b DefaultDataBucket) FieldValue(fieldName string) (interface{}, error) {
 	}
 	return nil, errors.New(ErrNoSuchField)
 }
+func (b DefaultDataBucket) FieldValues() []interface{} {
+	var values []interface{}
 
+	for _, fieldName := range b.Fields(false) {
+		values = append(values, b.fields[fieldName].Value)
+	}
+
+	return values
+
+}
 func (b *DefaultDataBucket) SetFieldValue(fieldName string, value interface{}) error {
 	_, ok := b.fields[fieldName]
 	if !ok {

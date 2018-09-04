@@ -27,7 +27,7 @@ type DefaultDataBit struct {
 	isUpdated bool
 }
 
-func (b DefaultDataBit) BitName() string {
+func (b DefaultDataBit) BitType() string {
 	return b._tableName
 }
 
